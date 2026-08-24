@@ -1,0 +1,27 @@
+name: Personal
+
+on:
+  workflow_dispatch:
+
+jobs:
+  interactive-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Interactive SSH Terminal
+        uses: mxschmitt/action-tmate@v3
+
+      # Langkah ini dieksekusi SETELAH Anda menutup sesi SSH (dengan perintah 'touch continue')
+      - name: Upload Build Output to Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: custom-build-output
+          path: |
+            build/
+            dist/
+            *.bin
+            *.exe
+          retention-days: 7
