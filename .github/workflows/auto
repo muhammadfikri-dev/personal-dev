@@ -1,0 +1,28 @@
+name: Antigravity Automated Batch Generator
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Keys
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Configure Git Identity
+        run: |
+          git config --global user.name "muhammadfikri-dev"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Authenticate GitHub CLI
+        run: echo "${{ secrets.PAT_GITHUB }}" | gh auth login --with-token
+
+      - name: Execute Antigravity Workflow
+        run: |
+          echo "Antigravity automation running..."
