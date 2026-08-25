@@ -1,69 +1,16 @@
-name: Personal Batch Antigravity Generator
+name: SSH Runner Access
 
 on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  ssh-session:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js (v24)
-        uses: actions/setup-node@v4
+      - name: Start SSH Session (tmate)
+        uses: mxschmitt/action-tmate@v3
         with:
-          node-version: '24'
-
-      # Otentikasi SSH untuk Git Push ke GitHub
-      - name: Setup SSH Agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      # Daftarkan Host Key GitHub agar tidak ada prompt Yes/No
-      - name: Add GitHub to Known Hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-
-      # Instalasi Antigravity CLI & GitHub CLI Config
-      - name: Install Antigravity CLI
-        run: npm install -g antigravity-cli
-
-      # Eksekusi Otomatisasi Batch Project
-      - name: Run Antigravity CLI Batch
-        env:
-          GH_TOKEN: ${{ secrets.PAT_GITHUB }}
-          GITHUB_USER: ${{ github.repository_owner }}
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Contoh array project yang akan dibuat otomatis
-          declare -A projects=(
-            ["express-core-api"]="Boilerplate Express JS API"
-            ["python-automation-script"]="Script Otomatisasi Python"
-          )
-
-          for repo in "${!projects[@]}"; do
-            desc="${projects[$repo]}"
-            echo "🚀 Process project: $repo..."
-
-            # Buat repo di GitHub via API
-            gh repo create "$GITHUB_USER/$repo" --public --description "$desc" || true
-
-            # Generate project via Antigravity CLI
-            mkdir -p "$repo" && cd "$repo"
-            git init
-            git remote add origin "git@github.com:$GITHUB_USER/$repo.git"
-            
-            antigravity --prompt "Buatkan struktur lengkap $desc. Sertakan file utama, README.md, dan .gitignore."
-
-            git add .
-            git commit -m "feat: automated initial commit by antigravity-cli"
-            git branch -M main
-            git push -u origin main
-
-            cd ..
-          done
+          detached: false
