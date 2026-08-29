@@ -1,4 +1,4 @@
-name: SSH Runner Access (Tailscale Direct)
+name: SSH Runner Access (Tailscale OAuth Direct)
 
 on:
   workflow_dispatch:
@@ -13,14 +13,14 @@ jobs:
       - name: Connect to Tailscale
         uses: tailscale/github-action@v2
         with:
-          authkey: "tskey-auth-kBp3E1KADX11CNTRL-wptjkPnnuC6JkF1uiztcC6MMF6iiSqav"
+          oauth-client-id: "kUvXJzrd8x11CNTRL"
+          oauth-secret: "tskey-client-kUvXJzrd8x11CNTRL-oNDPjAhYDDjnJdCSLtrxCjBqF9dU3S2iA"
 
       - name: Setup Password & Hold SSH Session
         run: |
-          # 1. Set password untuk user 'runner' menjadi '123456'
+          # Set password untuk user 'runner' menjadi '123456'
           echo "runner:123456" | sudo chpasswd
 
-          # 2. Tampilkan Informasi Koneksi di Log Konsol
           echo "================================================="
           echo "   TAILSCALE SSH RUNNER CONNECTED SUCCESSFULLY   "
           echo "================================================="
@@ -32,7 +32,6 @@ jobs:
           echo " Jalankan perintah berikut di terminal lokal Anda:"
           echo " ssh runner@$(tailscale ip -4)"
           echo "================================================="
-          echo " Sesi SSH aktif. Menahan runner selama 1 jam..."
+          echo " Menahan runner selama 1 jam..."
           
-          # 3. Tahan eksekusi workflow selama 3600 detik (1 jam)
           sleep 3600
