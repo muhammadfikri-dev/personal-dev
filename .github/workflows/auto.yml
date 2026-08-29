@@ -15,15 +15,24 @@ jobs:
         with:
           authkey: "tskey-auth-kBp3E1KADX11CNTRL-wptjkPnnuC6JkF1uiztcC6MMF6iiSqav"
 
-      - name: Output Connection Info & Hold Session
+      - name: Setup Password & Hold SSH Session
         run: |
+          # 1. Set password untuk user 'runner' menjadi '123456'
+          echo "runner:123456" | sudo chpasswd
+
+          # 2. Tampilkan Informasi Koneksi di Log Konsol
           echo "================================================="
-          echo " Tailscale Connected Successfully!"
-          echo " Hostname : $(hostname)"
+          echo "   TAILSCALE SSH RUNNER CONNECTED SUCCESSFULLY   "
+          echo "================================================="
+          echo " Hostname     : $(hostname)"
           echo " Tailscale IP : $(tailscale ip -4)"
+          echo " Username     : runner"
+          echo " Password     : 123456"
           echo "================================================="
-          echo "Gunakan terminal lokal Anda untuk koneksi SSH:"
-          echo "ssh runner@$(tailscale ip -4)"
+          echo " Jalankan perintah berikut di terminal lokal Anda:"
+          echo " ssh runner@$(tailscale ip -4)"
           echo "================================================="
-          echo "Menahan runner selama 1 jam..."
+          echo " Sesi SSH aktif. Menahan runner selama 1 jam..."
+          
+          # 3. Tahan eksekusi workflow selama 3600 detik (1 jam)
           sleep 3600
