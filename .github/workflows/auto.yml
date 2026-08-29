@@ -10,9 +10,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Tmate Session
+      - name: Start SSH Session (tmate)
         uses: mxschmitt/action-tmate@v3
         with:
           detached: false
-          # Menjaga agar sesi tidak runtuh jika terjadi lonjakan jaringan
-          connect-timeout: 30
+          connect-timeout-seconds: 30
