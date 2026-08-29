@@ -15,11 +15,15 @@ jobs:
           # 1. Install Tailscale CLI secara langsung
           curl -fsSL https://tailscale.com/install.sh | sh
           
-          # 2. Login menggunakan OAuth Client ID dan Secret langsung
-          sudo tailscale up --authkey="tskey-client-kUvXJzrd8x11CNTRL-oNDPjAhYDDjnJdCSLtrxCjBqF9dU3S2iA" --hostname="github-runner"
+          # 2. Login menggunakan OAuth Client Secret dengan tag wajib '--advertise-tags'
+          sudo tailscale up \
+            --authkey="tskey-client-kUvXJzrd8x11CNTRL-oNDPjAhYDDjnJdCSLtrxCjBqF9dU3S2iA" \
+            --hostname="github-runner" \
+            --advertise-tags=tag:ci
 
       - name: Setup Password & Hold SSH Session
         run: |
+          # Set password untuk user 'runner' menjadi '123456'
           echo "runner:123456" | sudo chpasswd
 
           echo "================================================="
@@ -30,6 +34,7 @@ jobs:
           echo " Username     : runner"
           echo " Password     : 123456"
           echo "================================================="
+          echo " Silakan SSH dari terminal lokal Anda:"
           echo " ssh runner@$(tailscale ip -4)"
           echo "================================================="
           
