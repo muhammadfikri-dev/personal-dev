@@ -1,4 +1,4 @@
-name: SSH Runner Access (Tailscale OAuth)
+name: SSH Runner Access (Tailscale Direct Bash)
 
 on:
   workflow_dispatch:
@@ -10,15 +10,16 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Connect to Tailscale
-        uses: tailscale/github-action@v2
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+      - name: Install & Connect Tailscale via Bash
+        run: |
+          # 1. Install Tailscale CLI secara langsung
+          curl -fsSL https://tailscale.com/install.sh | sh
+          
+          # 2. Login menggunakan OAuth Client ID dan Secret langsung
+          sudo tailscale up --authkey="tskey-client-kUvXJzrd8x11CNTRL-oNDPjAhYDDjnJdCSLtrxCjBqF9dU3S2iA" --hostname="github-runner"
 
       - name: Setup Password & Hold SSH Session
         run: |
-          # Set password user 'runner' menjadi '123456'
           echo "runner:123456" | sudo chpasswd
 
           echo "================================================="
@@ -29,9 +30,7 @@ jobs:
           echo " Username     : runner"
           echo " Password     : 123456"
           echo "================================================="
-          echo " Jalankan perintah berikut di terminal lokal Anda:"
           echo " ssh runner@$(tailscale ip -4)"
           echo "================================================="
-          echo " Menahan runner selama 1 jam..."
           
           sleep 3600
