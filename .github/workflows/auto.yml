@@ -1,4 +1,4 @@
-name: SSH Runner Access (Tailscale OAuth Direct)
+name: SSH Runner Access (Tailscale OAuth)
 
 on:
   workflow_dispatch:
@@ -13,12 +13,12 @@ jobs:
       - name: Connect to Tailscale
         uses: tailscale/github-action@v2
         with:
-          oauth-client-id: "kUvXJzrd8x11CNTRL"
-          oauth-secret: "tskey-client-kUvXJzrd8x11CNTRL-oNDPjAhYDDjnJdCSLtrxCjBqF9dU3S2iA"
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
 
       - name: Setup Password & Hold SSH Session
         run: |
-          # Set password untuk user 'runner' menjadi '123456'
+          # Set password user 'runner' menjadi '123456'
           echo "runner:123456" | sudo chpasswd
 
           echo "================================================="
