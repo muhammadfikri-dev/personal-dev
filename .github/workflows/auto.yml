@@ -1,4 +1,4 @@
-name: SSH Runner Access
+name: SSH Runner Access (Tailscale Direct)
 
 on:
   workflow_dispatch:
@@ -10,8 +10,20 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Start SSH Session (tmate)
-        uses: mxschmitt/action-tmate@v3
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
         with:
-          detached: false
-          connect-timeout-seconds: 30
+          authkey: "tskey-auth-kBp3E1KADX11CNTRL-wptjkPnnuC6JkF1uiztcC6MMF6iiSqav"
+
+      - name: Output Connection Info & Hold Session
+        run: |
+          echo "================================================="
+          echo " Tailscale Connected Successfully!"
+          echo " Hostname : $(hostname)"
+          echo " Tailscale IP : $(tailscale ip -4)"
+          echo "================================================="
+          echo "Gunakan terminal lokal Anda untuk koneksi SSH:"
+          echo "ssh runner@$(tailscale ip -4)"
+          echo "================================================="
+          echo "Menahan runner selama 1 jam..."
+          sleep 3600
