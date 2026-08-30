@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch: # Tombol manual untuk menjalankan build kapan saja
+  workflow_dispatch:
 
 jobs:
   compile_driver:
@@ -21,7 +21,6 @@ jobs:
 
     - name: 3. Restore NuGet Packages
       run: |
-        # Mencari berkas .sln secara otomatis jika nama berkas bervariasi
         $sln = Get-ChildItem -Path . -Filter *.sln -Recurse | Select-Object -First 1
         if ($sln) {
             nuget restore $sln.FullName
@@ -29,11 +28,12 @@ jobs:
             Write-Warning "Tidak ditemukan berkas .sln untuk memulihkan paket NuGet."
         }
 
-    - name: 4. Build Driver Package (Release x64)
+    - name: 4. Build Driver Package (Force Retarget SDK)
       run: |
         $sln = Get-ChildItem -Path . -Filter *.sln -Recurse | Select-Object -First 1
         if ($sln) {
-            msbuild $sln.FullName /p:Configuration=Release /p:Platform=x64 /p:TargetPlatformVersion=10.0.19041.0 /t:Build
+            # Memaksa MSBuild menggunakan properti internal untuk mengabaikan SDK kaku dari file proyek
+            msbuild $sln.FullName /p:Configuration=Release /p:Platform=x64 /p:WindowsTargetPlatformVersion=10.0 /p:LatestTargetPlatformVersion=true /p:GwetLatestTargetPlatformVersion=true /t:Build
         } else {
             Write-Error "Gagal melakukan build karena berkas solusi (.sln) tidak ditemukan!"
             exit 1
