@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://microsoft.com">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
@@ -9,7 +9,8 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A3C2B1D4-5E6F-4D2A-9B8C-7E6D5C4B3A2F}</ProjectGuid>
     <RootNamespace>IdeaPad3AudioDriver</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <!-- Menggunakan properti Latest untuk memaksa MSBuild mencari SDK tertinggi yang ada di mesin runner -->
+    <LatestTargetPlatformVersion>true</LatestTargetPlatformVersion>
     <ConfigurationType>Driver</ConfigurationType>
     <DriverType>KMDF</DriverType>
     <DriverTargetPlatforms>Desktop</DriverTargetPlatforms>
