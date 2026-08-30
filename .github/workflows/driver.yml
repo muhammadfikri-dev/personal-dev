@@ -10,7 +10,7 @@ on:
 jobs:
   compile_driver:
     name: Build Windows 10 x64 Driver Bundle
-    runs-on: windows-latest
+    runs-on: windows-2022 # Mengunci versi server ke Windows Server 2022 agar kompatibel dengan instalasi otomatis WDK
 
     steps:
     - name: 1. Checkout Source Code
@@ -19,27 +19,30 @@ jobs:
     - name: 2. Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    - name: 3. Restore NuGet Packages
+    - name: 3. Pasang Windows Driver Kit (WDK) Otomatis
+      run: |
+        # Mengunduh dan memasang WDK menggunakan Chocolatey agar build tools mode kernel tersedia di server
+        choco install windows-driver-kit -y --no-progress
+        
+    - name: 4. Restore NuGet Packages
       run: |
         $sln = Get-ChildItem -Path . -Filter *.sln -Recurse | Select-Object -First 1
         if ($sln) {
             nuget restore $sln.FullName
-        } else {
-            Write-Warning "Tidak ditemukan berkas .sln untuk memulihkan paket NuGet."
         }
 
-    - name: 4. Build Driver Package (Force Retarget SDK)
+    - name: 5. Build Driver Package (Force Platform Toolset v143)
       run: |
         $sln = Get-ChildItem -Path . -Filter *.sln -Recurse | Select-Object -First 1
         if ($sln) {
-            # Memaksa MSBuild menggunakan properti internal untuk mengabaikan SDK kaku dari file proyek
-            msbuild $sln.FullName /p:Configuration=Release /p:Platform=x64 /p:WindowsTargetPlatformVersion=10.0 /p:LatestTargetPlatformVersion=true /p:GwetLatestTargetPlatformVersion=true /t:Build
+            # Memaksa kompilasi menggunakan arsitektur WDK v143 yang terpasang otomatis dari langkah ke-3
+            msbuild $sln.FullName /p:Configuration=Release /p:Platform=x64 /p:WindowsTargetPlatformVersion=10.0 /p:LatestTargetPlatformVersion=true /p:PlatformToolset=WindowsKernelModeDriver143 /t:Build
         } else {
             Write-Error "Gagal melakukan build karena berkas solusi (.sln) tidak ditemukan!"
             exit 1
         }
 
-    - name: 5. Archive and Upload Driver Artifacts
+    - name: 6. Archive and Upload Driver Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: Lenovo-IdeaPad3-11IGL05-Audio-Windows10
