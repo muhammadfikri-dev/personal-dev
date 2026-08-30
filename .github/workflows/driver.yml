@@ -10,7 +10,7 @@ on:
 jobs:
   compile_driver:
     name: Build Windows 10 x64 Driver Bundle
-    runs-on: windows-2022 # Mengunci versi server ke Windows Server 2022 agar kompatibel dengan instalasi otomatis WDK
+    runs-on: windows-2022
 
     steps:
     - name: 1. Checkout Source Code
@@ -19,11 +19,17 @@ jobs:
     - name: 2. Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    - name: 3. Pasang Windows Driver Kit (WDK) Otomatis
+    - name: 3. Unduh dan Pasang Windows Driver Kit (WDK) Ekstensi Visual Studio
       run: |
-        # Mengunduh dan memasang WDK menggunakan Chocolatey agar build tools mode kernel tersedia di server
-        choco install windows-driver-kit -y --no-progress
+        # 1. Mengunduh eksekutor instalasi WDK resmi untuk Windows 10/11
+        Invoke-WebRequest -Uri "https://microsoft.com" -OutFile "wdksetup.exe"
         
+        # 2. Menjalankan instalasi secara senyap (silent) guna menyuntikkan komponen 'WindowsKernelModeDriver143'
+        Start-Process -FilePath "wdksetup.exe" -ArgumentList "/quiet", "/norestart", "/features", "OptionId.WindowsDriverKitFeature" -Wait
+        
+        # 3. Membersihkan berkas instalasi mentah setelah sukses terpasang
+        Remove-Item "wdksetup.exe" -Force
+
     - name: 4. Restore NuGet Packages
       run: |
         $sln = Get-ChildItem -Path . -Filter *.sln -Recurse | Select-Object -First 1
@@ -31,11 +37,11 @@ jobs:
             nuget restore $sln.FullName
         }
 
-    - name: 5. Build Driver Package (Force Platform Toolset v143)
+    - name: 5. Build Driver Package (Release x64 - Modern WDK)
       run: |
         $sln = Get-ChildItem -Path . -Filter *.sln -Recurse | Select-Object -First 1
         if ($sln) {
-            # Memaksa kompilasi menggunakan arsitektur WDK v143 yang terpasang otomatis dari langkah ke-3
+            # Memaksa MSBuild menggunakan PlatformToolset v143 yang baru saja disuntikkan pada langkah ke-3
             msbuild $sln.FullName /p:Configuration=Release /p:Platform=x64 /p:WindowsTargetPlatformVersion=10.0 /p:LatestTargetPlatformVersion=true /p:PlatformToolset=WindowsKernelModeDriver143 /t:Build
         } else {
             Write-Error "Gagal melakukan build karena berkas solusi (.sln) tidak ditemukan!"
