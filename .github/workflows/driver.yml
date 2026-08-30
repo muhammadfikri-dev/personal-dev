@@ -1,0 +1,50 @@
+name: Final Build Audio Driver Lenovo IdeaPad 3 11IGL05
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch: # Tombol manual untuk menjalankan build kapan saja
+
+jobs:
+  compile_driver:
+    name: Build Windows 10 x64 Driver Bundle
+    runs-on: windows-latest
+
+    steps:
+    - name: 1. Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: 2. Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: 3. Restore NuGet Packages
+      run: |
+        # Mencari berkas .sln secara otomatis jika nama berkas bervariasi
+        $sln = Get-ChildItem -Path . -Filter *.sln -Recurse | Select-Object -First 1
+        if ($sln) {
+            nuget restore $sln.FullName
+        } else {
+            Write-Warning "Tidak ditemukan berkas .sln untuk memulihkan paket NuGet."
+        }
+
+    - name: 4. Build Driver Package (Release x64)
+      run: |
+        $sln = Get-ChildItem -Path . -Filter *.sln -Recurse | Select-Object -First 1
+        if ($sln) {
+            msbuild $sln.FullName /p:Configuration=Release /p:Platform=x64 /p:TargetPlatformVersion=10.0.19041.0 /t:Build
+        } else {
+            Write-Error "Gagal melakukan build karena berkas solusi (.sln) tidak ditemukan!"
+            exit 1
+        }
+
+    - name: 5. Archive and Upload Driver Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Lenovo-IdeaPad3-11IGL05-Audio-Windows10
+        path: |
+          **/x64/Release/**/*.sys
+          **/x64/Release/**/*.inf
+          **/x64/Release/**/*.cat
+        if-no-files-found: error
