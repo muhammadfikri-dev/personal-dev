@@ -1,0 +1,38 @@
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = MEDIA
+ClassGuid   = {4d36e96c-e325-11ce-bfc1-08002be10318}
+Provider    = %ManufacturerName%
+CatalogFile = IdeaPad3Audio.cat
+DriverVer   = 08/30/2026,1.0.0.0
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+[Manufacturer]
+%ManufacturerName% = Standard,NTamd64
+
+[Standard.NTamd64]
+; Hardware ID untuk Intel Smart Sound Technology (SST) / SOF Audio Controller Gemini Lake
+%DeviceName% = Driver_Install, PCI\VEN_8086&DEV_3181
+
+[Driver_Install.NTamd64]
+CopyFiles = Driver_CopyFiles
+
+[Driver_CopyFiles]
+Driver.sys
+
+[Driver_Install.NTamd64.Services]
+AddService = IdeaPad3Audio,0x00000002,Driver_Service_Install
+
+[Driver_Service_Install]
+DisplayName    = %ServiceName%
+ServiceType    = 1
+StartType      = 3
+ErrorControl   = 1
+ServiceBinary  = %12%\Driver.sys
+
+[Strings]
+ManufacturerName = "Custom Chromebook Developer"
+DeviceName       = "Intel SST Audio Controller (Lenovo IdeaPad 3 11IGL05)"
+ServiceName      = "IdeaPad3Audio"
