@@ -9,7 +9,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{A3C2B1D4-5E6F-4D2A-9B8C-7E6D5C4B3A2F}</ProjectGuid>
     <RootNamespace>IdeaPad3AudioDriver</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ConfigurationType>Driver</ConfigurationType>
     <DriverType>KMDF</DriverType>
     <DriverTargetPlatforms>Desktop</DriverTargetPlatforms>
